@@ -43,7 +43,7 @@ For ease of navigation, we have organized the repository as follows:
 
 ### Contributors
 
-1. Mayen 
-2. Jerry
+1. [Mayen Kalu](https://github.com/mayenkalu)
+2. [Jerry Aremu](https://github.com/Jerry-Aremu/)
 
 
