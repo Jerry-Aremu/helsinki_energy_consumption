@@ -39,7 +39,7 @@ def get_request_as_df(
 ):
     
     """
-       this functin returns energy consumption data based on the constraints that are set the list 
+       this function returns energy consumption data based on the constraints that are set the list 
        of valid constraints are as shown below:
        Period: hourly, daily or monthly 
        Record: LocationName, PropertyCode, PurposeOfUse, BuildingCode  
@@ -109,6 +109,47 @@ def get_request_as_df(
             return data_df2
             
 
+            
+def get_daily_energy_for_a_specified_year(start_date, end_date):
+    
+    df1 = pd.read_json('data.json')
+
+    # list of location names with space replacement
+    location_names = [location.replace(" ", "%20") for location in df1['locationName']]
+
+    # List to store URLs with valid JSON data
+    valid_urls = []
+
+    # Fetching data for each location
+    for location in location_names:
+    
+        url = f"https://helsinki-openapi.nuuka.cloud/api/v1.0/EnergyData/Daily/ListByProperty?Record=LocationName&SearchString={location}&ReportingGroup=Electricity&StartTime={start_date}&EndTime={end_date}"
+        response = requests.get(url)
+        data = response.json()
+        if 'errorCode' not in data or data['errorCode'] != 'MissingSettingsException':
+            valid_urls.append(url)
+
+        
+    # Creating a folder to store the JSON files
+    folder_name = "energy_data"
+    os.makedirs(folder_name, exist_ok=True)
+    
+    # Save data from each valid URL as a separate JSON file in the folder
+    for index, url in enumerate(valid_urls):
+        response = requests.get(url)
+        data = response.json()
+        filename = f"data_{index}.json"
+        file_path = os.path.join(folder_name, filename)
+        with open(file_path, 'w') as file:
+            json.dump(data, file)
+    print(f"Data saved for URL: {url} (filename: {filename})")
+
+    print("Data saved successfully.")
+    
+    # Read the JSON file into a pandas DataFrame
+    df = pd.read_json('merged_data.json')
+    print(f"the shape of the dataframe is: {df.shape}")
+    return df.head()  
     
 
 
